@@ -3,7 +3,7 @@ require 'aws-sdk-dynamodb'
 
 DDB_ClIENT = Aws::DynamoDB::Client.new
 
-def get(event:, context:)
+def delete(event:, context:)
   begin
     puts "Received Request: #{event}"
 
@@ -14,9 +14,9 @@ def get(event:, context:)
       table_name: ENV['DYNAMODB_TABLE']
     }
 
-    resp = DDB_ClIENT.get_item(params)
+    resp = DDB_ClIENT.delete_item(params)
 
-    { statusCode: 200, body: JSON.generate(todo: resp['item'])}
+    { statusCode: 200, body: JSON.generate("Deleted Todo successfully!") }
   rescue StandardError => e  
     puts e.message  
     puts e.backtrace.inspect  

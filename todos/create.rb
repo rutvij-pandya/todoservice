@@ -14,7 +14,7 @@ def create(event:, context:)
     params = {
       item: {
         id: SecureRandom.hex(10),
-        text: data['text'],
+        task: data['task'],
         checked: false,
         createdAt: timestamp,
         updatedAt: timestamp
@@ -24,7 +24,7 @@ def create(event:, context:)
     # Create DB record
     resp = DDB_ClIENT.put_item(params)
 
-    { statusCode: 200, body: JSON.generate("Todo has been added successfully! #{params[:item].inspect}") }
+    { statusCode: 200, body: JSON.generate(success: true, id: params[:item][:id]) }
   rescue StandardError => e  
     puts e.message  
     puts e.backtrace.inspect  
