@@ -6,8 +6,18 @@ DDB_ClIENT = Aws::DynamoDB::Client.new
 def update(event:, context:)
   begin
     puts "Received Request: #{event}"
+    result = update_todo(event)
 
-    data = JSON.parse(event['body'])
+    { statusCode: 200, body: JSON.generate(success: true, todo: result['attributes']) }
+  rescue StandardError => e  
+    puts e.message  
+    puts e.backtrace.inspect  
+    { statusCode: 400, body: JSON.generate("Bad request, Error - #{e.message}") }
+  end
+end
+
+def update_todo(event)
+  data = JSON.parse(event['body'])
     timestamp = Time.now.to_i
 
     params = {
@@ -24,12 +34,5 @@ def update(event:, context:)
       return_values: 'UPDATED_NEW'
     }
     # Update DB record
-    resp = DDB_ClIENT.update_item(params)
-
-    { statusCode: 200, body: JSON.generate(success: true, todo: resp['attributes']) }
-  rescue StandardError => e  
-    puts e.message  
-    puts e.backtrace.inspect  
-    { statusCode: 400, body: JSON.generate("Bad request, Error - #{e.message}") }
-  end
+    DDB_ClIENT.update_item(params)
 end
