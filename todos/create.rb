@@ -1,13 +1,11 @@
-require 'json'
-require 'securerandom'
-require 'aws-sdk-dynamodb'
-
-DDB_ClIENT = Aws::DynamoDB::Client.new
+require_relative '../lib/event_parser'
+require_relative '../lib/crud'
 
 def create(event:, context:)
   begin
     puts "Received Request: #{event}"
-    result = create_todo(event)
+    data = build_item_data(event_body(event))
+    result = create_record(ENV['DYNAMODB_TABLE'], data)
 
     { statusCode: 200, body: JSON.generate(success: true, todo: result) }
   rescue StandardError => e  
@@ -17,22 +15,10 @@ def create(event:, context:)
   end
 end
 
-def create_todo(event)
-  data = JSON.parse(event['body'])
-  timestamp = Time.now.to_i
-
-  params = {
-    item: {
-      id: SecureRandom.hex(10),
-      task: data['task'],
-      checked: false,
-      createdAt: timestamp,
-      updatedAt: timestamp
-    },
-    table_name: ENV['DYNAMODB_TABLE']
+def build_item_data(params)
+  {
+    id: SecureRandom.hex(10),
+    task: params['task'],
+    checked: false
   }
-  # Create DB record
-  DDB_ClIENT.put_item(params)
-  
-  {id: params[:item][:id]}
 end

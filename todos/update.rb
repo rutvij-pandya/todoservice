@@ -1,12 +1,13 @@
-require 'json'
-require 'aws-sdk-dynamodb'
+require_relative '../lib/event_parser'
+require_relative '../lib/crud'
 
 DDB_ClIENT = Aws::DynamoDB::Client.new
 
 def update(event:, context:)
   begin
     puts "Received Request: #{event}"
-    result = update_todo(event)
+    data = build_item_data(event_body(event))
+    result = update_record(ENV['DYNAMODB_TABLE'], params_id(event), data)
 
     { statusCode: 200, body: JSON.generate(success: true, todo: result['attributes']) }
   rescue StandardError => e  
@@ -16,23 +17,15 @@ def update(event:, context:)
   end
 end
 
-def update_todo(event)
-  data = JSON.parse(event['body'])
-    timestamp = Time.now.to_i
+def build_item_data(params)
+  timestamp = Time.now.to_i
 
-    params = {
-      key: {
-        id: event['pathParameters']['id']
-      },
-      table_name: ENV['DYNAMODB_TABLE'],
-      update_expression: 'set task = :task, checked = :checked, updatedAt = :updatedAt',
-      expression_attribute_values: {
-        ':task' => data['task'],
-        ':checked' => data['checked'],
-        ':updatedAt' => timestamp
-      },
-      return_values: 'UPDATED_NEW'
+  {
+    update_expression: 'set task = :task, checked = :checked, updatedAt = :updatedAt',
+    expression_attribute_values: {
+      ':task' => params['task'],
+      ':checked' => params['checked'],
+      ':updatedAt' => timestamp
     }
-    # Update DB record
-    DDB_ClIENT.update_item(params)
+  }
 end
