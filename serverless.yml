@@ -73,7 +73,7 @@ functions:
       - http:
           path: todos
           method: post
-          cors: 
+          cors: true
 
   get:
     handler: todos/get.get
