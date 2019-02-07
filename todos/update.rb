@@ -1,8 +1,6 @@
 require_relative '../lib/event_parser'
 require_relative '../lib/crud'
 
-DDB_ClIENT = Aws::DynamoDB::Client.new
-
 def update(event:, context:)
   begin
     puts "Received Request: #{event}"

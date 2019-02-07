@@ -1,3 +1,4 @@
+require 'securerandom'
 require_relative '../lib/event_parser'
 require_relative '../lib/crud'
 

@@ -1,5 +1,4 @@
 require 'aws-sdk-dynamodb'
-require 'securerandom'
 
 DDB_ClIENT = Aws::DynamoDB::Client.new
 
